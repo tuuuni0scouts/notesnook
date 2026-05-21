@@ -21,7 +21,7 @@ import { Node, mergeAttributes, findChildren } from "@tiptap/core";
 import { Attribute } from "@tiptap/core";
 import { createNodeView } from "../react/index.js";
 import { AttachmentComponent } from "./component.js";
-import { Attachment } from "./types.js";
+import { Attachment, PdfAnnotation } from "./types.js";
 import { tiptapKeys } from "@notesnook/common";
 import { hasPermission } from "../../types.js";
 import { AudioNode } from "../audio/audio.js";
@@ -45,6 +45,13 @@ declare module "@tiptap/core" {
           query: (attachment: Attachment) => boolean;
         }
       ) => ReturnType;
+      addPdfAnnotation: (hash: string, annotation: PdfAnnotation) => ReturnType;
+      updatePdfAnnotation: (
+        hash: string,
+        id: string,
+        patch: Partial<PdfAnnotation>
+      ) => ReturnType;
+      removePdfAnnotation: (hash: string, id: string) => ReturnType;
     };
   }
 }
@@ -79,7 +86,25 @@ export const AttachmentNode = Node.create<AttachmentOptions>({
       hash: getDataAttribute("hash"),
       filename: getDataAttribute("filename"),
       mime: getDataAttribute("mime"),
-      size: getDataAttribute("size")
+      size: getDataAttribute("size"),
+      annotations: {
+        default: [],
+        parseHTML: (element) => {
+          try {
+            return JSON.parse(
+              element.getAttribute("data-annotations") ?? "[]"
+            );
+          } catch {
+            return [];
+          }
+        },
+        renderHTML: (attributes) => {
+          if (!attributes.annotations?.length) return {};
+          return {
+            "data-annotations": JSON.stringify(attributes.annotations)
+          };
+        }
+      }
     };
   },
 
@@ -159,6 +184,73 @@ export const AttachmentNode = Node.create<AttachmentOptions>({
           }
           tr.setMeta("preventUpdate", options.preventUpdate || false);
           tr.setMeta("ignoreEdit", options.ignoreEdit || false);
+          tr.setMeta("addToHistory", false);
+          if (dispatch) dispatch(tr);
+          return true;
+        },
+      addPdfAnnotation:
+        (hash, annotation) =>
+        ({ state, tr, dispatch }) => {
+          const nodes = findChildren(
+            state.doc,
+            (node) =>
+              this.options.types.includes(node.type.name) &&
+              node.attrs.hash === hash
+          );
+          if (!nodes.length) return false;
+          for (const { node, pos } of nodes) {
+            tr.setNodeMarkup(pos, node.type, {
+              ...node.attrs,
+              annotations: [...(node.attrs.annotations ?? []), annotation]
+            });
+          }
+          tr.setMeta("addToHistory", false);
+          if (dispatch) dispatch(tr);
+          return true;
+        },
+      updatePdfAnnotation:
+        (hash, id, patch) =>
+        ({ state, tr, dispatch }) => {
+          const nodes = findChildren(
+            state.doc,
+            (node) =>
+              this.options.types.includes(node.type.name) &&
+              node.attrs.hash === hash
+          );
+          if (!nodes.length) return false;
+          for (const { node, pos } of nodes) {
+            tr.setNodeMarkup(pos, node.type, {
+              ...node.attrs,
+              annotations: (node.attrs.annotations ?? []).map(
+                (a: PdfAnnotation) =>
+                  a.id === id
+                    ? { ...a, ...patch, updatedAt: Date.now() }
+                    : a
+              )
+            });
+          }
+          tr.setMeta("addToHistory", false);
+          if (dispatch) dispatch(tr);
+          return true;
+        },
+      removePdfAnnotation:
+        (hash, id) =>
+        ({ state, tr, dispatch }) => {
+          const nodes = findChildren(
+            state.doc,
+            (node) =>
+              this.options.types.includes(node.type.name) &&
+              node.attrs.hash === hash
+          );
+          if (!nodes.length) return false;
+          for (const { node, pos } of nodes) {
+            tr.setNodeMarkup(pos, node.type, {
+              ...node.attrs,
+              annotations: (node.attrs.annotations ?? []).filter(
+                (a: PdfAnnotation) => a.id !== id
+              )
+            });
+          }
           tr.setMeta("addToHistory", false);
           if (dispatch) dispatch(tr);
           return true;

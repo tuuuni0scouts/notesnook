@@ -51,9 +51,14 @@ export type ExportableNote = BaseExportableItem & {
   type: "note";
   data: string;
 };
+// Loosely typed so packages/common doesn't depend on packages/editor.
+// Consumers in apps/web cast this to PdfAnnotation[] where needed.
+type RawAnnotation = Record<string, unknown>;
+
 export type ExportableAttachment = BaseExportableItem & {
   type: "attachment";
   data: Attachment;
+  annotations: RawAnnotation[];
 };
 
 export async function* exportNotes(
@@ -102,7 +107,10 @@ export async function* exportNotes(
 
   // case where the user has a notebook named attachments
   const attachmentsRoot = pathTree.add("attachments", "underscore");
-  const pendingAttachments: Map<string, Attachment> = new Map();
+  const pendingAttachments: Map<
+    string,
+    { attachment: Attachment; annotations: RawAnnotation[] }
+  > = new Map();
 
   for (const [id] of notePathMap) {
     const note = await database.notes.note(id);
@@ -152,11 +160,12 @@ export async function* exportNotes(
     }
   }
 
-  for (const [path, attachment] of pendingAttachments) {
+  for (const [path, { attachment, annotations }] of pendingAttachments) {
     yield <ExportableAttachment>{
       type: "attachment",
       path,
       data: attachment,
+      annotations,
       mtime: new Date(attachment.dateModified),
       ctime: new Date(attachment.dateCreated)
     };
@@ -178,7 +187,10 @@ export async function* exportNote(
   });
   const ext = FORMAT_TO_EXT[options.format];
   const path = [filename, ext].join(".");
-  const pendingAttachments: Map<string, Attachment> = new Map();
+  const pendingAttachments: Map<
+    string,
+    { attachment: Attachment; annotations: RawAnnotation[] }
+  > = new Map();
 
   try {
     const content = await exportContent(note, {
@@ -197,11 +209,12 @@ export async function* exportNote(
       ctime: new Date(note.dateCreated)
     };
 
-    for (const [path, attachment] of pendingAttachments) {
+    for (const [path, { attachment, annotations }] of pendingAttachments) {
       yield <ExportableAttachment>{
         type: "attachment",
         path,
         data: attachment,
+        annotations,
         mtime: new Date(attachment.dateModified),
         ctime: new Date(attachment.dateCreated)
       };
@@ -225,7 +238,10 @@ export async function exportContent(
 
     // TODO: remove these
     attachmentsRoot?: string;
-    pendingAttachments?: Map<string, Attachment>;
+    pendingAttachments?: Map<
+      string,
+      { attachment: Attachment; annotations: RawAnnotation[] }
+    >;
     resolveInternalLink?: ResolveInternalLink;
   }
 ) {
@@ -294,7 +310,14 @@ export async function exportContent(
           attachmentPath,
           format
         );
-        pendingAttachments.set(attachmentPath, attachment);
+        let annotations: RawAnnotation[] = [];
+        try {
+          const raw = elements[attachment.hash]?.["data-annotations"];
+          if (raw) annotations = JSON.parse(raw) as RawAnnotation[];
+        } catch {
+          // malformed attribute — treat as no annotations
+        }
+        pendingAttachments.set(attachmentPath, { attachment, annotations });
       }
       return sources;
     });
