@@ -1,6 +1,7 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-05-08 10:43+0500\n"
+"POT-Creation-Date: 2026-05-11 12:10+0500\n"
+"POT-Creation-Date: 2026-05-11 12:10+0500\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -947,6 +948,10 @@ msgstr ""
 msgid "Are you sure you want to logout from this device? Any unsynced changes will be lost."
 msgstr ""
 
+#: src/strings.ts:2687
+msgid "Are you sure you want to open this file: {filePath}?"
+msgstr ""
+
 #: src/strings.ts:1046
 msgid "Are you sure you want to remove your name?"
 msgstr ""
@@ -981,6 +986,10 @@ msgstr ""
 
 #: src/strings.ts:908
 msgid "Attached files"
+msgstr ""
+
+#: src/strings.ts:2678
+msgid "Attaching files"
 msgstr ""
 
 #: src/strings.ts:290
@@ -1634,6 +1643,10 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#: src/strings.ts:2679
+msgid "Close ({seconds})"
+msgstr ""
+
 #: src/strings.ts:2019
 msgid "Close all"
 msgstr ""
@@ -1741,6 +1754,14 @@ msgstr ""
 
 #: src/strings.ts:144
 msgid "Compressed images are uploaded in Full HD resolution and usually are good enough for most use cases."
+msgstr "<<<<<<< HEAD"
+
+#: src/strings.ts:2680
+msgid "Compressing"
+msgstr "<<<<<<< HEAD"
+
+#: src/strings.ts:2684
+msgid "Compression failed"
 msgstr ""
 
 #: src/strings.ts:2262
@@ -2535,6 +2556,10 @@ msgstr ""
 msgid "Encrypted, private, secure."
 msgstr ""
 
+#: src/strings.ts:2681
+msgid "Encrypting"
+msgstr ""
+
 #: src/strings.ts:940
 msgid "Encrypting attachment"
 msgstr ""
@@ -2901,8 +2926,16 @@ msgstr ""
 msgid "File length mismatch. Expected {expectedSize} but got {currentSize} bytes. Please upload this file again from the attachment manager."
 msgstr ""
 
+#: src/strings.ts:2689
+msgid "File links cannot be opened in browsers. Please use the Notesnook desktop app."
+msgstr ""
+
 #: src/strings.ts:949
 msgid "File mismatch"
+msgstr ""
+
+#: src/strings.ts:2683
+msgid "File size limit exceeded. Please upgrade your plan."
 msgstr ""
 
 #: src/strings.ts:945
@@ -4466,6 +4499,10 @@ msgstr ""
 msgid "Open the two-factor authentication (TOTP) app to view your authentication code."
 msgstr ""
 
+#: src/strings.ts:2685
+msgid "Opening local file"
+msgstr ""
+
 #: src/strings.ts:1857
 msgid "Optional"
 msgstr ""
@@ -4714,7 +4751,7 @@ msgstr ""
 msgid "Please grant notifications permission to add new reminders."
 msgstr ""
 
-#: src/strings.ts:2666
+#: src/strings.ts:2677
 msgid "Please login to download attachments."
 msgstr ""
 
