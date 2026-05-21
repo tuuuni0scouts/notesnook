@@ -18,12 +18,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
   resolve: { mainFields: ["module", "jsnext:main", "jsnext"] },
   test: {
     alias: {
-      "@/": "./"
+      "@/": "./",
+      "@notesnook/intl": path.resolve(
+        __dirname,
+        "test-utils/intl-stub.ts"
+      )
     },
     environment: "happy-dom",
     typecheck: {

@@ -24,7 +24,6 @@ import { AttachmentComponent } from "./component.js";
 import { Attachment, PdfAnnotation } from "./types.js";
 import { tiptapKeys } from "@notesnook/common";
 import { hasPermission } from "../../types.js";
-import { AudioNode } from "../audio/audio.js";
 
 export type AttachmentType = "image" | "file" | "camera";
 export interface AttachmentOptions {
@@ -281,7 +280,7 @@ export const AttachmentNode = Node.create<AttachmentOptions>({
 });
 
 function mimeToExtension(mime: string): string {
-  if (mime.startsWith("audio/")) return AudioNode.name;
+  if (mime.startsWith("audio/")) return "audio";
   return AttachmentNode.name;
 }
 
