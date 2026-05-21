@@ -59,3 +59,60 @@ export type Attachment =
   | AudioAttachment
   | WebClipAttachment
   | ImageAttachment;
+
+export type PdfRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type AnnotationColor =
+  | "yellow"
+  | "green"
+  | "blue"
+  | "pink"
+  | "orange";
+
+type BaseAnnotation = {
+  id: string;
+  page: number;
+  createdAt: number;
+  updatedAt: number;
+  color: AnnotationColor;
+};
+
+export type TextAnnotation = BaseAnnotation & {
+  type: "highlight" | "underline";
+  rects: PdfRect[];
+  selectedText: string;
+  note?: string;
+};
+
+export type StickyNoteAnnotation = BaseAnnotation & {
+  type: "sticky";
+  x: number;
+  y: number;
+  note: string;
+};
+
+export type AreaAnnotation = BaseAnnotation & {
+  type: "area";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  note?: string;
+};
+
+export type InkAnnotation = BaseAnnotation & {
+  type: "ink";
+  strokes: Array<Array<[number, number]>>;
+  strokeWidth: number;
+};
+
+export type PdfAnnotation =
+  | TextAnnotation
+  | StickyNoteAnnotation
+  | AreaAnnotation
+  | InkAnnotation;
